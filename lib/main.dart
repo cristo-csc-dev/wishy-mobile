@@ -40,16 +40,17 @@ class _MyAppState extends State<MyApp> {
     if (call.method == 'onSharedText') {
       setState(() {
         _sharedText = call.arguments as String;
-         wishList.insert(
-                0,
-                Wish(
-                  id: DateTime.now().millisecondsSinceEpoch,
-                  title: 'Nuevo deseo',
-                  description: 'Añadido programáticamente',
-                  url: 'https://www.ejemplo.com',
-                  date: DateTime.now(),
-                ),
-              );
+        showWishList = true;
+        wishList.insert(
+          0,
+          Wish(
+            id: DateTime.now().millisecondsSinceEpoch,
+            title: 'Nuevo deseo',
+            description: 'Añadido programáticamente',
+            url: _sharedText ?? '',
+            date: DateTime.now(),
+          ),
+        );
       });
     }
   }
@@ -58,6 +59,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
+        backgroundColor: const Color.fromARGB(255, 248, 187, 237),
         appBar: AppBar(
           title: const Text('Wish list'),
           leading: Builder(
@@ -69,7 +71,7 @@ class _MyAppState extends State<MyApp> {
         ),
         drawer: Drawer(
           child: Builder(
-            builder: (context) => ListView(
+            builder: (navigationContext) => ListView(
               padding: EdgeInsets.zero,
               children: [
                 const DrawerHeader(
@@ -88,7 +90,7 @@ class _MyAppState extends State<MyApp> {
                   leading: const Icon(Icons.home),
                   title: const Text('Inicio'),
                   onTap: () {
-                    Navigator.pop(context);
+                    Navigator.pop(navigationContext);
                     setState(() {
                       showWishList = false;
                     });
@@ -98,7 +100,7 @@ class _MyAppState extends State<MyApp> {
                   leading: const Icon(Icons.favorite),
                   title: const Text('Mis deseos'),
                   onTap: () {
-                    Navigator.pop(context);
+                    Navigator.pop(navigationContext);
                     setState(() {
                       showWishList = true;
                     });
@@ -109,7 +111,7 @@ class _MyAppState extends State<MyApp> {
                   leading: const Icon(Icons.card_giftcard),
                   title: const Text('Es para...'),
                   onTap: () {
-                    Navigator.pop(context);
+                    Navigator.pop(navigationContext);
                     showWishList = false;
                     // Acción para "Es para..."
                   },
