@@ -4,6 +4,7 @@ import android.os.Bundle
 import io.flutter.Log
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.plugin.common.MethodChannel
+import org.json.JSONObject
 
 class MainActivity : FlutterActivity() {
 
@@ -25,12 +26,20 @@ class MainActivity : FlutterActivity() {
 
     override fun onResume() {
         super.onResume()
+        val sharedLinkInfo: MutableMap<String, String> = HashMap()
+        sharedLinkInfo.put("link", intent.getStringExtra(android.content.Intent.EXTRA_TEXT) ?: "")
+        sharedLinkInfo.put("title", intent.getStringExtra(android.content.Intent.EXTRA_TITLE) ?: "")
+        sharedLinkInfo.put("subject", intent.getStringExtra(android.content.Intent.EXTRA_SUBJECT) ?: "")
 
-        intent.getStringExtra(android.content.Intent.EXTRA_TEXT)?.let { shared ->
-            flutterEngine?.dartExecutor?.binaryMessenger?.let { messenger ->
-                MethodChannel(messenger, CHANNEL).invokeMethod("onSharedText", shared)
-            }
-            ShareIntentHandler.lastSharedText = null
+        flutterEngine?.dartExecutor?.binaryMessenger?.let { messenger -> {}
+            MethodChannel(messenger, CHANNEL).invokeMethod("onSharedText", JSONObject(sharedLinkInfo as Map<*, *>?).toString())
         }
+
+//        intent.getStringExtra(android.content.Intent.EXTRA_TEXT)?.let { shared ->
+//            flutterEngine?.dartExecutor?.binaryMessenger?.let { messenger ->
+//                MethodChannel(messenger, CHANNEL).invokeMethod("onSharedText", shared)
+//            }
+//            ShareIntentHandler.lastSharedText = null
+//        }
     }
 }

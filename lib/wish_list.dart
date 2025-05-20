@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:wishy/app_colors.dart';
 import 'package:wishy/wish.dart';
 import 'package:wishy/wish_item.dart';
 
@@ -19,7 +20,7 @@ class FiveItemsList extends StatelessWidget {
           height: itemHeight,
           width: double.infinity,
           child: Card(
-            color: Colors.pink[100], // Fondo magenta claro
+            color: sideMenuBackgroundColor, // Fondo magenta claro
             margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             child: WishItem(wish: items[index]),
           ),
@@ -27,4 +28,19 @@ class FiveItemsList extends StatelessWidget {
       },
     );
   }
+}
+
+class WishList  {
+
+  List<Wish> wishList = [];
+
+  static final WishList _instance = WishList._internal();
+  WishList._internal();
+
+  factory WishList() {
+    return _instance;
+  }
+
+  get items => wishList;
+
 }

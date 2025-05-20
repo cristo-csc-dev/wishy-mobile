@@ -1,5 +1,10 @@
+import 'dart:collection';
+
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:wishy/dao/wish_db.dart';
+import 'app_colors.dart';
 import 'wish_list.dart';
 import 'wish.dart';
 
@@ -17,18 +22,11 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
 
-  String? _sharedText;
+  String _sharedLink = "{}";
   static const platform = MethodChannel('com.wishysa.wishy/channel');
     // Añade esta variable para controlar la vista
   bool showWishList = false;
-   List<Wish> wishList = [
-    Wish(id: 1, title: 'Deseo 1', description: 'Descripción 1', url: 'https://wwww.google.es', date: DateTime.now()),
-    Wish(id: 2, title: 'Deseo 2', description: 'Descripción 2', url: 'https://wwww.google.es', date: DateTime.now()),
-    Wish(id: 3, title: 'Deseo 3', description: 'Descripción 3', url: 'https://wwww.google.es', date: DateTime.now()),
-    Wish(id: 4, title: 'Deseo 4', description: 'Descripción 4', url: 'https://wwww.google.es', date: DateTime.now()),
-    Wish(id: 5, title: 'Deseo 5', description: 'Descripción 5', url: 'https://wwww.google.es', date: DateTime.now()),
-    Wish(id: 6, title: 'Deseo 6', description: 'Descripción 6', url: 'https://wwww.google.es', date: DateTime.now()),
-  ];
+  List<Wish> wishListItems = [];
 
   @override
   void initState() {
@@ -38,19 +36,17 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> _handleMethodCalls(MethodCall call) async {
     if (call.method == 'onSharedText') {
+      _sharedLink = call.arguments;
+      final Map<String, dynamic> jsonData = jsonDecode(_sharedLink);
+      WishDao().insertWish(Wish(
+        title: jsonData['title'] ?? '',
+        url: jsonData['link'] ?? '',
+        description: jsonData['subject'] ?? '',
+        date: DateTime.now(),
+      ));
+      wishListItems = await WishDao().getWishes();
       setState(() {
-        _sharedText = call.arguments as String;
-        showWishList = true;
-        wishList.insert(
-          0,
-          Wish(
-            id: DateTime.now().millisecondsSinceEpoch,
-            title: 'Nuevo deseo',
-            description: 'Añadido programáticamente',
-            url: _sharedText ?? '',
-            date: DateTime.now(),
-          ),
-        );
+       showWishList = true;
       });
     }
   }
@@ -59,46 +55,44 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        backgroundColor: const Color.fromARGB(255, 248, 187, 237),
+        backgroundColor: backgroundColor,
         appBar: AppBar(
-          title: const Text('Wish list'),
-          leading: Builder(
+          backgroundColor: headersColor,
+          title: const Text(
+            'Wish list',
+            style: TextStyle(
+              color: backgroundColor,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+            leading: Builder(
             builder: (context) => IconButton(
-              icon: const Icon(Icons.menu),
+              icon: const Icon(Icons.menu, color: backgroundColor),
               onPressed: () => Scaffold.of(context).openDrawer(),
             ),
           ),
         ),
         drawer: Drawer(
+          backgroundColor: sideMenuBackgroundColor,
           child: Builder(
             builder: (navigationContext) => ListView(
               padding: EdgeInsets.zero,
               children: [
                 const DrawerHeader(
                   decoration: BoxDecoration(
-                    color: Colors.blue,
+                    color: headersColor,
                   ),
-                  child: Text(
-                    'Menú Lateral',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
+                  child: Center(
+                    child: Icon(
+                      Icons.favorite, // Elige el icono que prefieras
+                      color: sideMenuBackgroundColor,
+                      size: 64, // Tamaño grande
                     ),
                   ),
                 ),
                 ListTile(
-                  leading: const Icon(Icons.home),
-                  title: const Text('Inicio'),
-                  onTap: () {
-                    Navigator.pop(navigationContext);
-                    setState(() {
-                      showWishList = false;
-                    });
-                  },
-                ),
-                ListTile(
                   leading: const Icon(Icons.favorite),
-                  title: const Text('Mis deseos'),
+                  title: const Text('Para mí'),
                   onTap: () {
                     Navigator.pop(navigationContext);
                     setState(() {
@@ -109,18 +103,23 @@ class _MyAppState extends State<MyApp> {
                 ),
                 ListTile(
                   leading: const Icon(Icons.card_giftcard),
-                  title: const Text('Es para...'),
+                  title: const Text('Para...'),
                   onTap: () {
                     Navigator.pop(navigationContext);
-                    showWishList = false;
+                    setState(() {
+                      showWishList = false;
+                    });
                     // Acción para "Es para..."
                   },
                 ),
                 ListTile(
                   leading: const Icon(Icons.calendar_today),
-                  title: const Text('Calendario'),
+                  title: const Text('Eventos'),
                   onTap: () {
-                    Navigator.pop(context);
+                    Navigator.pop(navigationContext);
+                    setState(() {
+                      showWishList = false;
+                    });
                     // Acción para "Calendario"
                   },
                 ),
@@ -130,7 +129,7 @@ class _MyAppState extends State<MyApp> {
         ),
         body: showWishList
             ? FiveItemsList(
-                items: wishList,
+                items: wishListItems,
               )
             : const Center(
                 child: Text('Contenido principal'),

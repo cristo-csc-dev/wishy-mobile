@@ -1,15 +1,15 @@
 class Wish {
-  final int id;
-  final String? title;
+  late int? id;
+  final String title;
   final String url;
   final String description;
-  final DateTime? date;
+  final DateTime date;
 
-  const Wish({
-    required this.id,
-    this.title="My wish",
+  Wish({
+    this.id,
+    required this.title,
     required this.url,
     required this.description,
-    this.date
+    required this.date
   });
 }
