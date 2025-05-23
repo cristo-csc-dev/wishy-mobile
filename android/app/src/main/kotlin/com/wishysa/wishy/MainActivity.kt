@@ -1,5 +1,6 @@
 package com.wishysa.wishy
 
+import android.content.Intent
 import android.os.Bundle
 import io.flutter.Log
 import io.flutter.embedding.android.FlutterActivity
@@ -26,13 +27,19 @@ class MainActivity : FlutterActivity() {
 
     override fun onResume() {
         super.onResume()
-        val sharedLinkInfo: MutableMap<String, String> = HashMap()
-        sharedLinkInfo.put("link", intent.getStringExtra(android.content.Intent.EXTRA_TEXT) ?: "")
-        sharedLinkInfo.put("title", intent.getStringExtra(android.content.Intent.EXTRA_TITLE) ?: "")
-        sharedLinkInfo.put("subject", intent.getStringExtra(android.content.Intent.EXTRA_SUBJECT) ?: "")
+        if(intent.action ==Intent.ACTION_SEND) {
+            val sharedLinkInfo: MutableMap<String, String> = HashMap()
+            sharedLinkInfo.put("link", intent.getStringExtra(Intent.EXTRA_TEXT) ?: "")
+            sharedLinkInfo.put("title", intent.getStringExtra(Intent.EXTRA_TITLE) ?: "")
+            sharedLinkInfo.put("subject", intent.getStringExtra(Intent.EXTRA_SUBJECT) ?: "")
 
-        flutterEngine?.dartExecutor?.binaryMessenger?.let { messenger -> {}
-            MethodChannel(messenger, CHANNEL).invokeMethod("onSharedText", JSONObject(sharedLinkInfo as Map<*, *>?).toString())
+            flutterEngine?.dartExecutor?.binaryMessenger?.let { messenger ->
+                {}
+                MethodChannel(messenger, CHANNEL).invokeMethod(
+                    "onSharedText",
+                    JSONObject(sharedLinkInfo as Map<*, *>?).toString()
+                )
+            }
         }
 
 //        intent.getStringExtra(android.content.Intent.EXTRA_TEXT)?.let { shared ->

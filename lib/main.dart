@@ -1,5 +1,3 @@
-import 'dart:collection';
-
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -31,6 +29,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    // WishDao().deleteAllWishes();
     platform.setMethodCallHandler(_handleMethodCalls);
   }
 
@@ -128,8 +127,11 @@ class _MyAppState extends State<MyApp> {
           ),
         ),
         body: showWishList
-            ? FiveItemsList(
-                items: wishListItems,
+            ? Padding(
+              padding: const EdgeInsets.only(top: 16),
+                child: FiveItemsList(
+                  items: wishListItems,
+                )
               )
             : const Center(
                 child: Text('Contenido principal'),

@@ -7,7 +7,7 @@ import android.os.Bundle
 class ShareReceiverActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
+        super.onCreate(savedInstanceState)
 //
 //        val sharedText = intent.getStringExtra(Intent.EXTRA_TEXT)
 //

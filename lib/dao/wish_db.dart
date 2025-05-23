@@ -65,4 +65,9 @@ class WishDao {
       );
     });
   }
+
+  void deleteAllWishes() async {
+    final db = await _database;
+    await db.delete('wishes');
+  }
 }
