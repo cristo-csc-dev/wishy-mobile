@@ -11,12 +11,17 @@ Future<Database> initializeWishDb() async {
 
   return await openDatabase(
     join(await getDatabasesPath(), 'wish_database.db'),
+    version: 2,
     onCreate: (db, version) {
       return db.execute(
         'CREATE TABLE wishes(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, title TEXT, description TEXT, url TEXT, date TEXT)',
       );
     },
-    version: 1,
+    onUpgrade: (db, oldVersion, newVersion) async {
+      if (oldVersion < 2) {
+        await db.execute('ALTER TABLE wishes ADD COLUMN docId TEXT');
+      }
+    },
   );
 }
 
@@ -44,11 +49,12 @@ class WishDao {
 
   Future<void> insertWish(Wish wish) async {
     final db = await _database;
-    await db.insert(
+    wish.id = await db.insert(
       'wishes',
       toMap(wish),
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
+    
   }
 
   Future<List<Wish>> getWishes() async {
@@ -64,6 +70,16 @@ class WishDao {
         date: DateTime.parse(maps[i]['date']),
       );
     });
+  }
+
+  Future<void> updateWish(Wish wish) async {
+    final db = await _database;
+    await db.update(
+      'wishes',
+      toMap(wish),
+      where: 'id = ?',
+      whereArgs: [wish.id],
+    );
   }
 
   void deleteAllWishes() async {
