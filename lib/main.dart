@@ -1,22 +1,12 @@
 import 'dart:convert';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wishy/dao/wish_db.dart';
-import 'package:wishy/wish_storage_facade.dart';
 import 'app_colors.dart';
 import 'wish_list.dart';
 import 'wish.dart';
 
-void main() async {
-
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  // Configura el emulador de Storage (por ejemplo, en localhost:9199)
-  FirebaseStorage.instance.useStorageEmulator('localhost', 9199);
-  FirebaseFirestore.instance.useFirestoreEmulator('localhost', 8080);
+void main() {
   runApp(const MyApp());
 }
 
@@ -46,10 +36,13 @@ class _MyAppState extends State<MyApp> {
   Future<void> _handleMethodCalls(MethodCall call) async {
     if (call.method == 'onSharedText') {
       _sharedLink = call.arguments;
-      //final Map<String, dynamic> jsonData = jsonDecode(_sharedLink);
-      var wish = Wish.fromJson(jsonDecode(_sharedLink));
-      await WishDao().insertWish(wish);
-      storeAndSync(wish);
+      final Map<String, dynamic> jsonData = jsonDecode(_sharedLink);
+      WishDao().insertWish(Wish(
+        title: jsonData['title'] ?? '',
+        url: jsonData['link'] ?? '',
+        description: jsonData['subject'] ?? '',
+        date: DateTime.now(),
+      ));
       wishListItems = await WishDao().getWishes();
       setState(() {
        showWishList = true;

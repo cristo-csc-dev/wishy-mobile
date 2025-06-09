@@ -29,3 +29,18 @@ class FiveItemsList extends StatelessWidget {
     );
   }
 }
+
+class WishList  {
+
+  List<Wish> wishList = [];
+
+  static final WishList _instance = WishList._internal();
+  WishList._internal();
+
+  factory WishList() {
+    return _instance;
+  }
+
+  get items => wishList;
+
+}
